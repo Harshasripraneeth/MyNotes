@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
         Adapter = Adapter1;
         rcview.setAdapter(Adapter);
 
-        //item touch helper for deleting the note when swiped.
+        //item touch helper for deleting the note when swiped left or right.
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
