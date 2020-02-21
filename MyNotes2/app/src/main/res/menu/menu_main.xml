@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.pressure.mynotes.MainActivity">
+    <item
+        android:id="@+id/deleteAllNotes"
+        android:orderInCategory="100"
+        android:title="Delete all notes"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/sortByTitle"
+        android:orderInCategory="100"
+        android:title="Sort by title"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/SortbyContent"
+        android:orderInCategory="100"
+        android:title="Sort by contents"
+        app:showAsAction="never" />
+</menu>
