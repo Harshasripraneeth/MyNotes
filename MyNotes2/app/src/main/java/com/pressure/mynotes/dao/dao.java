@@ -1,5 +1,6 @@
 package com.pressure.mynotes.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -16,7 +17,7 @@ public interface dao {
 
 
     @Query("SELECT * FROM MyNotes")
-    List<Entity> loadAllTasks();
+    LiveData<List<Entity>> loadAllTasks();
     @Insert
     void insertTask(com.pressure.mynotes.entities.Entity taskEntry);
 
