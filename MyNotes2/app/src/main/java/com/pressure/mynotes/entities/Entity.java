@@ -7,9 +7,9 @@ import androidx.room.PrimaryKey;
 @androidx.room.Entity(tableName = "MyNotes")
 public class Entity {
     @PrimaryKey(autoGenerate = true)
-    int id;
-    String title;
-    String content;
+    private int id;
+    private String title;
+    private String content;
 
     public Entity(int id, String title, String content) {
         this.id = id;
