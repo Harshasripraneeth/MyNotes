@@ -5,24 +5,30 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.pressure.mynotes.MainActivity;
 import com.pressure.mynotes.R;
+import com.pressure.mynotes.database.Database;
 import com.pressure.mynotes.entities.Entity;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.viewholder> {
-    List<Entity> entries;
-    Context context;
-    itemclicklistener activity;
-   public Adapter(Context context,List<Entity> entries)
+    private List<Entity> entries;
+    private Context context;
+    private itemclicklistener activity;
+   public Adapter(Context context)
     {
         this.context = context;
-        this.entries = entries;
         activity =(itemclicklistener) context;
+        entries = new ArrayList<Entity>();
     }
     class viewholder extends RecyclerView.ViewHolder{
         TextView tvdesc;
@@ -77,6 +83,45 @@ public class Adapter extends RecyclerView.Adapter<Adapter.viewholder> {
     {
         return entries;
     }
+
+    //sorting the list according to the title of the note.
+    public void sortByTitle()
+    {
+        Collections.sort(entries, new Comparator<Entity>() {
+            @Override
+            public int compare(Entity entity, Entity t1) {
+                return entity.getTitle().compareTo(t1.getTitle());
+            }
+        });
+         notifyDataSetChanged();
+        Toast.makeText(context, "Sorted Successfully", Toast.LENGTH_SHORT).show();
+    }
+    //sorting the list according to the content of the note.
+    public void sortByContent()
+    {
+        Collections.sort(entries, new Comparator<Entity>() {
+            @Override
+            public int compare(Entity entity, Entity t1) {
+                return entity.getContent().compareTo(t1.getContent());
+            }
+        });
+        Toast.makeText(context, "Sorted Successfully", Toast.LENGTH_SHORT).show();
+        notifyDataSetChanged();
+    }
+    //deleting all notes in the database.
+    public void deleteAllNotes()
+    {
+        final Database db;
+        db= Database.getInstance(context);
+        Executors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                db.taskDao().deleteAllNotes();
+            }
+        });
+    }
+
+
 
 
 
