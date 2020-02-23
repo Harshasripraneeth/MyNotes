@@ -14,6 +14,8 @@ import com.pressure.mynotes.methods.Executors;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
     private EditText etsearch;
 
     private Database db;
-    private List<Entity> list;
     private List<Entity> updatedlist;
 
 
@@ -90,23 +91,13 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
         });
 
         //loading the data from the database.
-        Executors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                list = db.taskDao().loadAllTasks();
+        load();
 
-            }
-        });
-
-        if(list == null)
-        {
-            list = new ArrayList<Entity>();
-        }
-        Adapter1 = new Adapter(MainActivity.this, list);
+        Adapter1 = new Adapter(MainActivity.this);
         Adapter = Adapter1;
         rcview.setAdapter(Adapter);
 
-        //item touch helper for deleting the note when swiped left or right.
+        //item touch helper for deleting the note when swiped.
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -126,8 +117,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
                     }
                 });
 
-                db = Database.getInstance(getApplicationContext());
-                load();
+
             }
         }).attachToRecyclerView(rcview);
     }
@@ -147,11 +137,11 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
         int id = item.getItemId();
         switch(id)
         {
-            case R.id.deleteAllNotes : deleteAllNotes();
+            case R.id.deleteAllNotes : Adapter1.deleteAllNotes();
                                        break;
-            case R.id.sortByTitle    : sortByTitle();
+            case R.id.sortByTitle    : Adapter1.sortByTitle();
                                        break;
-            case R.id.SortbyContent  : sortByContent();
+            case R.id.SortbyContent  : Adapter1.sortByContent();
                                         break;
         }
 
@@ -161,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
     @Override
     protected void onResume() {
         super.onResume();
-        load();
     }
 
     @Override
@@ -175,19 +164,16 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
     // loading the data into the adapter.
     void load()
     {
-        Executors.getInstance().diskIO().execute(new Runnable() {
+        LiveData<List<Entity>> list = db.taskDao().loadAllTasks();
+        list.observe(this, new Observer<List<Entity>>() {
             @Override
-            public void run() {
-                final List<Entity> tasks = db.taskDao().loadAllTasks();
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Adapter1.set(tasks);
-                    }
-                });
+            public void onChanged(List<Entity> entities) {
+                if(entities == null)
+                    entities = new ArrayList<Entity>();
+                Adapter1.set(entities);
             }
         });
+
     }
 
     //searching the list according the text in etsearch.
@@ -210,46 +196,8 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
 
     }
 
-    //deleting all notes in the database.
-    void deleteAllNotes()
-    {
-        db= Database.getInstance(MainActivity.this);
-        Executors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                db.taskDao().deleteAllNotes();
-            }
-        });
-        list.clear();
-        Adapter1.set(list);
-    }
 
-    //sorting the list according to the title of the note.
-    void sortByTitle()
-    {
-        Collections.sort(list, new Comparator<Entity>() {
-            @Override
-            public int compare(Entity entity, Entity t1) {
-                return entity.getTitle().compareTo(t1.getTitle());
-            }
-        });
-        Adapter1.set(list);
-        Toast.makeText(this, "Sorted Successfully", Toast.LENGTH_SHORT).show();
 
-    }
-
-    //sorting the list according to the content of the note.
-    void sortByContent()
-    {
-        Collections.sort(list, new Comparator<Entity>() {
-            @Override
-            public int compare(Entity entity, Entity t1) {
-                return entity.getContent().compareTo(t1.getContent());
-            }
-        });
-        Adapter1.set(list);
-        Toast.makeText(this, "Sorted Successfully", Toast.LENGTH_SHORT).show();
-    }
 
 
 }
