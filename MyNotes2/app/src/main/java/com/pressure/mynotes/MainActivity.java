@@ -4,18 +4,21 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.pressure.mynotes.R;
 import com.pressure.mynotes.UI.AddActivity;
 import com.pressure.mynotes.database.Database;
+import com.pressure.mynotes.databinding.ActivityMainBinding;
 import com.pressure.mynotes.entities.Entity;
 import com.pressure.mynotes.methods.Adapter;
 import com.pressure.mynotes.methods.Executors;
+import com.pressure.mynotes.viewmodel.MainViewModel;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,11 +29,8 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements Adapter.itemclicklistener {
@@ -44,11 +44,12 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
     private Database db;
     private List<Entity> updatedlist;
 
+    private ActivityMainBinding mainBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        mainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -64,15 +65,12 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
 
 
         db = Database.getInstance(MainActivity.this);
-        rcview = findViewById(R.id.rcview);
-        rcview.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(MainActivity.this);
-        rcview.setLayoutManager(layoutManager);
-        etsearch = findViewById(R.id.etsearch);
+        mainBinding.rcview.setHasFixedSize(true);
+        mainBinding.rcview.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         updatedlist = new ArrayList<Entity>();
 
         //text watcher for etsearch
-        etsearch.addTextChangedListener(new TextWatcher() {
+        mainBinding.etsearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -91,11 +89,11 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
         });
 
         //loading the data from the database.
-        load();
+        loadData();
 
         Adapter1 = new Adapter(MainActivity.this);
         Adapter = Adapter1;
-        rcview.setAdapter(Adapter);
+        mainBinding.rcview.setAdapter(Adapter);
 
         //item touch helper for deleting the note when swiped.
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -119,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
 
 
             }
-        }).attachToRecyclerView(rcview);
+        }).attachToRecyclerView(mainBinding.rcview);
     }
 
     @Override
@@ -162,10 +160,11 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
     }
 
     // loading the data into the adapter.
-    void load()
+    void loadData()
     {
-        LiveData<List<Entity>> list = db.taskDao().loadAllTasks();
-        list.observe(this, new Observer<List<Entity>>() {
+        //MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        MainViewModel viewModel = new ViewModelProvider(MainActivity.this).get(MainViewModel.class);
+        viewModel.getTasks().observe(this, new Observer<List<Entity>>() {
             @Override
             public void onChanged(List<Entity> entities) {
                 if(entities == null)
@@ -195,9 +194,5 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
         });
 
     }
-
-
-
-
 
 }
