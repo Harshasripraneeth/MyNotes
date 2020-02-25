@@ -8,11 +8,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pressure.mynotes.MainActivity;
 import com.pressure.mynotes.R;
 import com.pressure.mynotes.database.Database;
+import com.pressure.mynotes.databinding.AdapterLayoutBinding;
 import com.pressure.mynotes.entities.Entity;
 
 import java.util.ArrayList;
@@ -31,14 +33,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.viewholder> {
         entries = new ArrayList<Entity>();
     }
     class viewholder extends RecyclerView.ViewHolder{
-        TextView tvdesc;
-        TextView tvtitle;
+        AdapterLayoutBinding adapterLayoutBinding;
 
-        public viewholder(@NonNull View itemView) {
-            super(itemView);
-            tvdesc = itemView.findViewById(R.id.tvdesc);
-            tvtitle = itemView.findViewById(R.id.tvtitle);
-            itemView.setOnClickListener(new View.OnClickListener() {
+        public viewholder(@NonNull AdapterLayoutBinding itemView) {
+            super(itemView.getRoot());
+             adapterLayoutBinding = itemView;
+            adapterLayoutBinding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     activity.onitemclicklistener(entries.get(entries.indexOf((Entity) v.getTag())).getId());
@@ -51,16 +51,15 @@ public class Adapter extends RecyclerView.Adapter<Adapter.viewholder> {
     @NonNull
     @Override
     public Adapter.viewholder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.adapter_layout,viewGroup,false);
-        return new viewholder(v);
+        AdapterLayoutBinding adapterLayoutBinding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()),R.layout.adapter_layout,viewGroup,false);
+        return new viewholder(adapterLayoutBinding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull Adapter.viewholder viewHolder, int i) {
         Entity ent = entries.get(i);
         viewHolder.itemView.setTag(ent);
-        viewHolder.tvtitle.setText(ent.getTitle());
-        viewHolder.tvdesc.setText(ent.getContent());
+        viewHolder.adapterLayoutBinding.setNote(ent);
     }
     @Override
     public int getItemCount() {

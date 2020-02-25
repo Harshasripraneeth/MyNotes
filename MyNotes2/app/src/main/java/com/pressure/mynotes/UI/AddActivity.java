@@ -2,18 +2,21 @@ package com.pressure.mynotes.UI;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
 
+import com.pressure.mynotes.databinding.ActivityAddBinding;
 import com.pressure.mynotes.methods.Executors;
 import com.pressure.mynotes.R;
 import com.pressure.mynotes.database.Database;
 import com.pressure.mynotes.entities.Entity;
 
 public class AddActivity extends AppCompatActivity  {
+    private ActivityAddBinding addBinding;
     private Database db;
     private EditText etdesc;
     private EditText etTitle;
@@ -24,9 +27,7 @@ public class AddActivity extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add);
-        etdesc = findViewById(R.id.etDesc);
-        etTitle = findViewById(R.id.etTitle);
+        addBinding = DataBindingUtil.setContentView(this,R.layout.activity_add);
         Intent intent = getIntent();
         TASK_ID = intent.getIntExtra("EXTRA_TASK_ID",-1);
 
@@ -60,7 +61,7 @@ public class AddActivity extends AppCompatActivity  {
 
     void insert()
     {
-        String title = etTitle.getText().toString();
+        String title = addBinding.etTitle.getText().toString();
         if(title.isEmpty()) {
             showDialogBox();
         }
@@ -72,8 +73,8 @@ public class AddActivity extends AppCompatActivity  {
     //inserting note to the database.
     void insertingNote()
     {
-        String title = etTitle.getText().toString();
-        String desc = etdesc.getText().toString();
+        String title = addBinding.etTitle.getText().toString();
+        String desc = addBinding.etDesc.getText().toString();
 
         final Entity et = new Entity(title, desc);
         db = Database.getInstance(AddActivity.this);
@@ -97,8 +98,7 @@ public class AddActivity extends AppCompatActivity  {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        etTitle.setText(e.getTitle());
-                        etdesc.setText(e.getContent());
+                        addBinding.setNote(e);
                     }
                 });
             }
