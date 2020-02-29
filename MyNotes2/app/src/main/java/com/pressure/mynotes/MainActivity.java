@@ -3,76 +3,55 @@ package com.pressure.mynotes;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.pressure.mynotes.R;
 import com.pressure.mynotes.UI.AddActivity;
-import com.pressure.mynotes.database.Database;
-import com.pressure.mynotes.entities.Entity;
+import com.pressure.mynotes.databinding.ActivityMainBinding;
+import com.pressure.mynotes.model.Entity;
 import com.pressure.mynotes.methods.Adapter;
-import com.pressure.mynotes.methods.Executors;
+import com.pressure.mynotes.viewmodel.MainActivityViewModel;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.LiveData;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements Adapter.itemclicklistener {
 
-    private RecyclerView rcview;
-    private Adapter Adapter1;
-    private RecyclerView.Adapter Adapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private EditText etsearch;
-
-    private Database db;
-    private List<Entity> updatedlist;
-
+    private Adapter adapter;
+    private  MainActivityViewModel mainActivityViewModel;
+    private ActivityMainBinding mainBinding;
+    private ClickHandlers clickHandlers;
+    private int ADD_NOTE_REQUEST_CODE=1;
+    private int EDIT_NOTE_REQUEST_CODE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        mainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AddActivity.class);
-                startActivity(intent);
-
-            }
-        });
-
-
-        db = Database.getInstance(MainActivity.this);
-        rcview = findViewById(R.id.rcview);
-        rcview.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(MainActivity.this);
-        rcview.setLayoutManager(layoutManager);
-        etsearch = findViewById(R.id.etsearch);
-        updatedlist = new ArrayList<Entity>();
+        clickHandlers = new ClickHandlers();
+        mainBinding.setClickhandlers(clickHandlers);
+        mainActivityViewModel = new ViewModelProvider(MainActivity.this).get(MainActivityViewModel.class);
+        mainBinding.rcview.setHasFixedSize(true);
+        mainBinding.rcview.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
         //text watcher for etsearch
-        etsearch.addTextChangedListener(new TextWatcher() {
+        mainBinding.etsearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -91,11 +70,10 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
         });
 
         //loading the data from the database.
-        load();
+        loadData();
 
-        Adapter1 = new Adapter(MainActivity.this);
-        Adapter = Adapter1;
-        rcview.setAdapter(Adapter);
+        adapter = new Adapter(MainActivity.this);
+        mainBinding.rcview.setAdapter(adapter);
 
         //item touch helper for deleting the note when swiped.
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -108,18 +86,12 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
             @Override
             public void onSwiped(final RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 // Here is where you'll implement swipe to delete
-                Executors.getInstance().diskIO().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        int position = viewHolder.getAdapterPosition();
-                        List<Entity> list = Adapter1.get();
-                        db.taskDao().deleteTask(list.get(position));
-                    }
-                });
+                int position = viewHolder.getAdapterPosition();
+                List<Entity> list = adapter.get();
 
-
+                mainActivityViewModel.delete(list.get(position));
             }
-        }).attachToRecyclerView(rcview);
+        }).attachToRecyclerView(mainBinding.rcview);
     }
 
     @Override
@@ -137,11 +109,11 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
         int id = item.getItemId();
         switch(id)
         {
-            case R.id.deleteAllNotes : Adapter1.deleteAllNotes();
+            case R.id.deleteAllNotes : mainActivityViewModel.deleteAllNotes();
                                        break;
-            case R.id.sortByTitle    : Adapter1.sortByTitle();
+            case R.id.sortByTitle    : adapter.sortByTitle();
                                        break;
-            case R.id.SortbyContent  : Adapter1.sortByContent();
+            case R.id.SortbyContent  : adapter.sortByContent();
                                         break;
         }
 
@@ -157,20 +129,21 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
     public void onitemclicklistener(int index) {
        Intent intent = new Intent(MainActivity.this,AddActivity.class);
        intent.putExtra("EXTRA_TASK_ID",index);
-       startActivity(intent);
+       startActivityForResult(intent,EDIT_NOTE_REQUEST_CODE);
 
     }
 
     // loading the data into the adapter.
-    void load()
+    void loadData()
     {
-        LiveData<List<Entity>> list = db.taskDao().loadAllTasks();
-        list.observe(this, new Observer<List<Entity>>() {
+        //MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        MainActivityViewModel viewModel = new ViewModelProvider(MainActivity.this).get(MainActivityViewModel.class);
+        viewModel.getNotes().observe(this, new Observer<List<Entity>>() {
             @Override
             public void onChanged(List<Entity> entities) {
                 if(entities == null)
                     entities = new ArrayList<Entity>();
-                Adapter1.set(entities);
+                adapter.set(entities);
             }
         });
 
@@ -179,25 +152,33 @@ public class MainActivity extends AppCompatActivity implements Adapter.itemclick
     //searching the list according the text in etsearch.
     void textUpdated(String s)
     {
-        final String search = "%"+s+"%";
-        db = Database.getInstance(MainActivity.this);
-        Executors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                updatedlist =db.taskDao().loadUpdatedList(search);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Adapter1.set(updatedlist);
-                    }
-                });
-            }
-        });
+        final String search = s;
+        adapter.set(mainActivityViewModel.getSearchList(s));
+        Log.d("mainactivity","loaded list");
 
     }
+    public class ClickHandlers
+    {
+        public void onFabClicked(View view)
+        {
+            Intent intent = new Intent(MainActivity.this, AddActivity.class);
+            startActivityForResult(intent,ADD_NOTE_REQUEST_CODE);
+        }
+    }
 
-
-
-
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == ADD_NOTE_REQUEST_CODE)
+        {
+            if(resultCode == RESULT_OK)
+            {
+                mainActivityViewModel.insert(new Entity(data.getStringExtra("title"),data.getStringExtra("desc")));
+            }
+        }
+        else if(requestCode == EDIT_NOTE_REQUEST_CODE && resultCode == RESULT_OK)
+        {
+                mainActivityViewModel.update(new Entity(data.getIntExtra("taskid",-1),data.getStringExtra("title"),data.getStringExtra("desc")));
+        }
+    }
 }
