@@ -1,38 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F7181515"
     tools:context=".UI.AddActivity">
-    <EditText
-        android:layout_height="wrap_content"
+    <data>
+        <variable
+            name="note"
+            type="com.pressure.mynotes.model.Entity" />
+    </data>
+    <LinearLayout
         android:layout_width="match_parent"
-        android:inputType="textPersonName"
-        android:hint="enter title"
-        android:ems="10"
-        android:textColor="#F5F5F5"
-        android:textColorHint="#BDBDBD"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="20dp"
-        android:id="@+id/etTitle"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#F7181515">
 
-    <EditText
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:inputType="textMultiLine"
-        android:hint="enter description"
-        android:textColor="#BDBDBD"
-        android:textColorHint="#BDBDBD"
-        android:ems="10"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="20dp"
-        android:id="@+id/etDesc"
-        android:textIsSelectable="false"
-        android:maxLines="30"/>
+        <EditText
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:inputType="textPersonName"
+            android:hint="enter title"
+            android:ems="10"
+            android:text="@{note.title}"
+            android:textColor="#F5F5F5"
+            android:textColorHint="#BDBDBD"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/etTitle"
+            />
 
-</LinearLayout>
+        <EditText
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:inputType="textMultiLine"
+            android:hint="enter description"
+            android:text="@{note.content}"
+            android:textColor="#BDBDBD"
+            android:textColorHint="#BDBDBD"
+            android:ems="10"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/etDesc"
+            android:textIsSelectable="false"
+            android:maxLines="30"/>
+
+    </LinearLayout>
+</layout>
