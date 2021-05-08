@@ -17,4 +17,10 @@
         android:orderInCategory="100"
         android:title="Sort by contents"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/SortByDate"
+        android:orderInCategory="100"
+        android:title="Sort by Date"
+        app:showAsAction="never" />
+
 </menu>

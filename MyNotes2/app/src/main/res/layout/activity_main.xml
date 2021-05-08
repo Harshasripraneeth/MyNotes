@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity"
-
-
     >
+    <data>
+        <variable
+            name="clickhandlers"
+            type="com.pressure.mynotes.MainActivity.ClickHandlers" />
+    </data>
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F7181515"
+        android:background="#F5F5F5"
         >
 
         <com.google.android.material.appbar.AppBarLayout
@@ -33,7 +37,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@android:drawable/ic_dialog_email" />
+
+            android:onClick="@{clickhandlers::onFabClicked}"
+            app:backgroundTint="@color/colorPrimary"
+            app:srcCompat="@android:drawable/ic_input_add"
+            />
 
         <include layout="@layout/content_main" />
 
@@ -50,20 +58,26 @@
                 <EditText
                     android:id="@+id/etsearch"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_marginTop="55dp"
                     android:layout_marginRight="20dp"
-                    android:textColor="#F5F5F5"
+                    android:layout_marginLeft="5dp"
                     android:ems="10"
                     android:hint="enter text to search"
-                    android:textColorHint="#BDBDBD"
-                    android:inputType="textPersonName" />
+                    android:fontFamily="sans-serif-condensed-medium"
+                    android:inputType="textPersonName"
+                    android:padding="5dp"
+                    android:textSize="16sp"
+                    android:textStyle="italic"
+                    android:background="@android:color/transparent"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rcview"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="20dp" />
+
+
             </LinearLayout>
 
         </ScrollView>

@@ -6,43 +6,60 @@
     <data>
         <variable
             name="note"
-            type="com.pressure.mynotes.entities.Entity" />
+            type="com.pressure.mynotes.model.Entity" />
     </data>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#F7181515">
+       >
 
-        <EditText
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:inputType="textPersonName"
-            android:hint="enter title"
-            android:ems="10"
-            android:text="@{note.title}"
-            android:textColor="#F5F5F5"
-            android:textColorHint="#BDBDBD"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="20dp"
-            android:id="@+id/etTitle"/>
 
-        <EditText
-            android:layout_height="wrap_content"
+        <ScrollView
             android:layout_width="match_parent"
-            android:inputType="textMultiLine"
-            android:hint="enter description"
-            android:text="@{note.content}"
-            android:textColor="#BDBDBD"
-            android:textColorHint="#BDBDBD"
-            android:ems="10"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="20dp"
-            android:id="@+id/etDesc"
-            android:textIsSelectable="false"
-            android:maxLines="30"/>
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <EditText
+                    android:id="@+id/etTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="20dp"
+                    android:ems="10"
+                    android:hint="enter title"
+                    android:inputType="textPersonName"
+                    android:padding="5dp"
+                    android:text="@{note.title}"
+                    android:fontFamily="serif"
+                    android:background="@android:color/transparent"
+                     />
+
+                <EditText
+                    android:id="@+id/etDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="20dp"
+                    android:ems="10"
+                    android:hint="enter description"
+                    android:inputType="textMultiLine"
+                    android:maxLines="30"
+                    android:text="@{note.content}"
+                    android:lineSpacingExtra="10dp"
+                    android:textIsSelectable="false"
+                    android:textStyle="italic"
+                    android:fontFamily="sans-serif"
+                    android:background="@android:color/transparent"/>
+
+            </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
 </layout>
